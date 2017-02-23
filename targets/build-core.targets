@@ -76,7 +76,7 @@
       <CoreProjectDirectory>%(CoreFx.ProjectDirectory)</CoreProjectDirectory>
       <CorePackageOutputDirectory>$(CoreProjectDirectory)bin/packages/$(Configuration)/</CorePackageOutputDirectory>
       <CoreBuildCommand>$(CoreProjectDirectory)build$(ShellExtension)</CoreBuildCommand>
-      <CoreArguments>-$(Configuration) -buildArch=$(Platform)</CoreArguments>
+      <CoreArguments>-$(Configuration) -buildArch=$(Platform) -stripSymbols</CoreArguments>
       <CoreVersionFile>%(CoreFx.VersionFile)</CoreVersionFile>
     </PropertyGroup>
   </Target>
