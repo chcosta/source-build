@@ -5,6 +5,7 @@ IFS=$'\n\t'
 ORIGINALARGS=$#
 declare -a ADDITIONALARGS=()
 SHAREDFRAMEWORKPATH=""
+SUBMODULETOOLRUNTIMEDIR=""
 MANAGEDCORECLRPATH="none"
 NETCORESDK=""
 NETCORESDK11=""
@@ -186,6 +187,10 @@ bootstrap()
       cp -f $SHAREDFRAMEWORKPATH/shared/Microsoft.NETCore.App/*/*.dll $SUBMODULETOOLRUNTIMEDIR
       cp -f $SUBMODULETOOLRUNTIMEDIR/tmp/* $SUBMODULETOOLRUNTIMEDIR
 
+      # Include any necessary overrides
+      if [[ -d "$SCRIPT_ROOT/bootstrap/Tools-Override" ]]; then
+        cp -f $SCRIPT_ROOT/bootstrap/Tools-Override/* $SUBMODULETOOLRUNTIMEDIR
+      fi
       # Carry along BuildToolsVersion.txt
       cp -f $SCRIPT_ROOT/bootstrap/BuildToolsVersion.txt $SUBMODULETOOLRUNTIMEDIR 
     fi
@@ -233,22 +238,19 @@ if [[ "$USEBUILTTOOLS" == "false" ]]; then
   bootstrap
 fi
 
-  if [[ -d "$CLIPATH" ]] && [[ -d "$SUBMODULETOOLRUNTIMEDIR" ]]; then
-    echo "Using prebuilt MSBuild CLI and BuildTools."
-    if [[ ${#ADDITIONALARGS[@]} -gt 0 ]]; then
-      ADDITIONALARGS=(${ADDITIONALARGS[@]} "/p:BuildTools_Dir=$SUBMODULETOOLRUNTIMEDIR")
-    else
-      ADDITIONALARGS=("/p:BuildTools_Dir=$SUBMODULETOOLRUNTIMEDIR")
-    fi
-    ADDITIONALARGS=(${ADDITIONALARGS[@]} "/p:Cli_Path=$CLIPATH")
+if [[ -d "$CLIPATH" ]] && [[ -d "$SUBMODULETOOLRUNTIMEDIR" ]]; then
+  echo "Using prebuilt MSBuild CLI and BuildTools."
+  if [[ ${#ADDITIONALARGS[@]} -gt 0 ]]; then
+    ADDITIONALARGS=(${ADDITIONALARGS[@]} "/p:BootstrapBuildToolsDir=$SUBMODULETOOLRUNTIMEDIR")
   else
-    echo "Error: CLI or BuildTools paths specified does not exist, rebuild without the --projectjson_buildtools and --msbuild_cli options."
-    exit 1
+    ADDITIONALARGS=("/p:BootstrapBuildToolsDir=$SUBMODULETOOLRUNTIMEDIR")
   fi
+  ADDITIONALARGS=(${ADDITIONALARGS[@]} "/p:BootstrapMsbuildCliDir=$CLIPATH")
+fi
 
-  NETCORESDK=$CLIPATH
-  determine_sdk_version
-  SDKPATH="$CLIPATH/sdk/$SDKVERSION"
+NETCORESDK=$CLIPATH
+determine_sdk_version
+SDKPATH="$CLIPATH/sdk/$SDKVERSION"
 
 echo "SDKPATH: $SDKPATH"
 
