@@ -7,7 +7,7 @@
 
   <Target Name="UpdateRuntimeSection" BeforeTargets="Build">
     <ItemGroup>
-      <RoslynProjectJsonFiles Include="$(ProjectDirectory)/**/project.json" />
+      <RoslynProjectJsonFiles Include="$(ProjectDirectory))/build/**/project.json" />
       <NuSpecFiles Include="$(ProjectDirectory)/**/*.nuspec" />
     </ItemGroup>
     <AddSourceToNuGetConfig NuGetConfigFile="$(ProjectDirectory)/NuGet.Config" 
